@@ -76,7 +76,7 @@ public class Racer {
                 else if (downPressed) {
                     p1velocity = p1velocity - velocitystep;
                 }
-                else {
+                else {  // if no buttons are pressed, slow down
                     if (p1velocity > 0) {
                         p1velocity = p1velocity - velocitystep;
                     } else {

@@ -73,17 +73,24 @@ public class Racer {
                 if (upPressed) {
                     p1velocity = p1velocity + velocitystep;
                 }
-                if (downPressed) {
+                else if (downPressed) {
                     p1velocity = p1velocity - velocitystep;
                 }
-                if (leftPressed) {
+                else {
+                    if (p1velocity > 0) {
+                        p1velocity = p1velocity - velocitystep;
+                    } else {
+                        p1velocity = p1velocity + velocitystep;
+                    }
+                }
+                if (leftPressed && p1velocity != 0) {
                     if (p1velocity < 0) {
                         p1.rotate(-rotatestep);
                     } else {
                         p1.rotate(rotatestep);
                     }
                 }
-                if (rightPressed) {
+                if (rightPressed && p1velocity != 0) {
                     if (p1velocity < 0) {
                         p1.rotate(rotatestep);
                     } else {

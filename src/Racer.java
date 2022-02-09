@@ -21,8 +21,8 @@ public class Racer {
         appFrame = new JFrame("2DRacer");
         XOFFSET = 0;
         YOFFSET = 40;
-        WINWIDTH = 801;
-        WINHEIGHT = 500;
+        WINWIDTH = 790;
+        WINHEIGHT = 470;
         pi = 3.14159265358979;
         twoPi = 2.0 * 3.14159265358979;
         endgame = false;
@@ -534,7 +534,7 @@ public class Racer {
     public static void main(String[] args) {
         setup();
         appFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        appFrame.setSize(801, 500);
+        appFrame.setSize(790, 470);
 
         JPanel myPanel = new JPanel();
 

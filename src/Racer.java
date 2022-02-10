@@ -167,7 +167,9 @@ public class Racer {
 
                 // count lap
                 if (collisionOccurs(p1, c1)) {
+                    currentLapP1 += 1;
                     System.out.println(currentLapP1);
+                    break;
                 }
                 /*  FIXME   add upon p2 implementation
                 if (collisionOccurs(p2, c1)) {

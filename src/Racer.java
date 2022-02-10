@@ -126,8 +126,8 @@ public class Racer {
                     }
                 }
 
-                p1.move(-p1velocity * Math.sin(p1.getAngle() - pi / 2.0),
-                        p1velocity * Math.cos(p1.getAngle() - pi / 2.0));
+                p1.move(-p1velocity * Math.cos(p1.getAngle() - pi / 2.0),
+                        p1velocity * Math.sin(p1.getAngle() - pi / 2.0));
                 p1.screenWrap(XOFFSET, XOFFSET + WINWIDTH, YOFFSET, YOFFSET + WINHEIGHT);
 
                 p2.move(-p2velocity * Math.cos(p2.getAngle() - pi / 2.0),
@@ -269,7 +269,7 @@ public class Racer {
 
     private static AffineTransformOp rotateImageObject(ImageObject obj) {
         AffineTransform at = AffineTransform.getRotateInstance(-obj.getAngle(), obj.getHeight() / 2.0,
-                obj.getWidth() / 2.0);
+                obj.getWidth() / 2.0 );
         AffineTransformOp atop = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
         return atop;
     }
@@ -372,10 +372,10 @@ public class Racer {
             }
             if (action.equals("S")) {
                 sPressed = false;
+                p2velocity = 0.0;
             }
             if (action.equals("A")) {
                 aPressed = false;
-                p2velocity = 0.0;
             }
             if (action.equals("D")) {
                 dPressed = false;
@@ -403,8 +403,8 @@ public class Racer {
             sPressed = false;
             dPressed = false;
 
-            p1 = new ImageObject(p1originalX, p1originalY, p1width, p1height, 0.0);
-            p2 = new ImageObject(p2originalX, p2originalY, p2width, p2height, 0.0);
+            p1 = new ImageObject(p1originalX, p1originalY, p1width, p1height, -1.6);
+            p2 = new ImageObject(p2originalX, p2originalY, p2width, p2height, -1.6);
             p1velocity = 0.0;
             p2velocity = 0.0;
             expcount = 1;

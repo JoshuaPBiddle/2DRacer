@@ -8,11 +8,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalTime;
-import java.util.Random;
 import java.util.Vector;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -44,11 +40,23 @@ public class Racer {
 
         try {
             background = ImageIO.read(new File("track1.png"));
+            player1 = ImageIO.read(new File("Player1.png"));
+            player2 = ImageIO.read(new File("Player2.png"));
             orangeCar = ImageIO.read(new File("orangeLambo.png"));
             carBG = ImageIO.read(new File("carBG.png"));
             blueCar = ImageIO.read(new File("blueLambo.png"));
-            player1 = ImageIO.read(new File("player1.png"));
-            player2 = ImageIO.read(new File("player2.png"));
+            slash = ImageIO.read(new File("slash.png"));
+            zero = ImageIO.read(new File("number_0.png"));
+            one = ImageIO.read(new File("number_1.png"));
+            two = ImageIO.read(new File("number_2.png"));
+            three = ImageIO.read(new File("number_3.png"));
+            four = ImageIO.read(new File("number_4.png"));
+            five = ImageIO.read(new File("number_5.png"));
+            six = ImageIO.read(new File("number_6.png"));
+            seven = ImageIO.read(new File("number_7.png"));
+            eight = ImageIO.read(new File("number_8.png"));
+            nine = ImageIO.read(new File("number_9.png"));
+            ten = ImageIO.read(new File("number_10.png"));
         } catch (IOException ioe) {
 
         }
@@ -60,6 +68,8 @@ public class Racer {
                 backgroundDraw();
                 player1Draw();
                 player2Draw();
+                currentLapsDrawP1();
+                currentLapsDrawP2();
 
                 try {
                     Thread.sleep(32);
@@ -290,6 +300,79 @@ public class Racer {
         g2D.drawImage(blueCar, XOFFSET + 560, YOFFSET + 422, null);
     }
 
+    //blue car
+    private static void currentLapsDrawP1() {
+        Graphics g = appFrame.getGraphics();
+        Graphics2D g2D = (Graphics2D) g;
+
+        switch (currentLapP1) {
+            case 1 -> g2D.drawImage(one, XOFFSET + 480, YOFFSET + 465, null);
+            case 2 -> g2D.drawImage(two, XOFFSET + 480, YOFFSET + 465, null);
+            case 3 -> g2D.drawImage(three, XOFFSET + 480, YOFFSET + 465, null);
+            case 4 -> g2D.drawImage(four, XOFFSET + 480, YOFFSET + 465, null);
+            case 5 -> g2D.drawImage(five, XOFFSET + 480, YOFFSET + 465, null);
+            case 6 -> g2D.drawImage(six, XOFFSET + 480, YOFFSET + 465, null);
+            case 7 -> g2D.drawImage(seven, XOFFSET + 480, YOFFSET + 465, null);
+            case 8 -> g2D.drawImage(eight, XOFFSET + 480, YOFFSET + 465, null);
+            case 9 -> g2D.drawImage(nine, XOFFSET + 480, YOFFSET + 465, null);
+            case 10 -> g2D.drawImage(ten, XOFFSET + 480, YOFFSET + 465, null);
+            default -> g2D.drawImage(zero, XOFFSET + 480, YOFFSET + 465, null);
+        };
+
+        g2D.drawImage(slash, XOFFSET + 500, YOFFSET + 455, null);
+
+        switch (maxLapNum) {
+            case 1 -> g2D.drawImage(one, XOFFSET + 520, YOFFSET + 465, null);
+            case 2 -> g2D.drawImage(two, XOFFSET + 520, YOFFSET + 465, null);
+            //case 3 -> g2D.drawImage(three, XOFFSET, YOFFSET, null);
+            case 4 -> g2D.drawImage(four, XOFFSET + 520, YOFFSET + 465, null);
+            case 5 -> g2D.drawImage(five, XOFFSET + 520, YOFFSET + 465, null);
+            case 6 -> g2D.drawImage(six, XOFFSET + 520, YOFFSET + 465, null);
+            case 7 -> g2D.drawImage(seven, XOFFSET + 520, YOFFSET + 465, null);
+            case 8 -> g2D.drawImage(eight, XOFFSET + 520, YOFFSET + 465, null);
+            case 9 -> g2D.drawImage(nine, XOFFSET + 520, YOFFSET + 465, null);
+            case 10 -> g2D.drawImage(ten, XOFFSET + 520, YOFFSET + 465, null);
+            default -> g2D.drawImage(three, XOFFSET + 520, YOFFSET + 465, null);
+        };
+    }
+
+    //orange car
+    private static void currentLapsDrawP2() {
+        Graphics g = appFrame.getGraphics();
+        Graphics2D g2D = (Graphics2D) g;
+
+        switch (currentLapP1) {
+        case 1 -> g2D.drawImage(one, XOFFSET + 205, YOFFSET + 465, null);
+        case 2 -> g2D.drawImage(two, XOFFSET + 205, YOFFSET + 465, null);
+        case 3 -> g2D.drawImage(three, XOFFSET + 205, YOFFSET + 465, null);
+        case 4 -> g2D.drawImage(four, XOFFSET + 205, YOFFSET + 465, null);
+        case 5 -> g2D.drawImage(five, XOFFSET + 205, YOFFSET + 465, null);
+        case 6 -> g2D.drawImage(six, XOFFSET + 205, YOFFSET + 465, null);
+        case 7 -> g2D.drawImage(seven, XOFFSET + 205, YOFFSET + 465, null);
+        case 8 -> g2D.drawImage(eight, XOFFSET + 205, YOFFSET + 465, null);
+        case 9 -> g2D.drawImage(nine, XOFFSET + 205, YOFFSET + 465, null);
+        case 10 -> g2D.drawImage(ten, XOFFSET + 205, YOFFSET + 465, null);
+        default -> g2D.drawImage(zero, XOFFSET + 205, YOFFSET + 465, null);
+    };
+
+        g2D.drawImage(slash, XOFFSET + 225, YOFFSET + 455, null);
+
+        switch (maxLapNum) {
+            case 1 -> g2D.drawImage(one, XOFFSET + 245, YOFFSET + 465, null);
+            case 2 -> g2D.drawImage(two, XOFFSET + 245, YOFFSET + 465, null);
+            //case 3 -> g2D.drawImage(three, XOFFSET, YOFFSET, null);
+            case 4 -> g2D.drawImage(four, XOFFSET + 245, YOFFSET + 465, null);
+            case 5 -> g2D.drawImage(five, XOFFSET + 245, YOFFSET + 465, null);
+            case 6 -> g2D.drawImage(six, XOFFSET + 245, YOFFSET + 465, null);
+            case 7 -> g2D.drawImage(seven, XOFFSET + 245, YOFFSET + 465, null);
+            case 8 -> g2D.drawImage(eight, XOFFSET + 245, YOFFSET + 465, null);
+            case 9 -> g2D.drawImage(nine, XOFFSET + 245, YOFFSET + 465, null);
+            case 10 -> g2D.drawImage(ten, XOFFSET + 245, YOFFSET + 465, null);
+            default -> g2D.drawImage(three, XOFFSET + 245, YOFFSET + 465, null);
+        };
+    }
+
+
     private static void player1Draw() {
         Graphics g = appFrame.getGraphics();
         Graphics2D g2D = (Graphics2D) g;
@@ -433,6 +516,7 @@ public class Racer {
             return switch (input) {
                 case "One" -> 1;
                 case "Two" -> 2;
+                //case "Three" -> 3;
                 case "Four" -> 4;
                 case "Five" -> 5;
                 case "Six" -> 6;
@@ -447,7 +531,7 @@ public class Racer {
         public void actionPerformed(ActionEvent e) {
             JComboBox cb = (JComboBox) e.getSource();
             String textLevel = (String) cb.getSelectedItem();
-            level = decodeLevel(textLevel);
+            maxLapNum = decodeLevel(textLevel);
         }
     }
 
@@ -674,6 +758,8 @@ public class Racer {
         appFrame.setVisible(true);
 
         String[] levels = {"One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"};
+        JLabel label1 = new JLabel("Max Laps:");
+        myPanel.add(label1);
         JComboBox<String> levelMenu = new JComboBox<>(levels);
         levelMenu.setSelectedIndex(2);
         levelMenu.addActionListener(new MaxLaps());
@@ -717,6 +803,19 @@ public class Racer {
     private static BufferedImage carBG;
     private static BufferedImage player1;
     private static BufferedImage player2;
+    private static BufferedImage zero;
+    private static BufferedImage one;
+    private static BufferedImage two;
+    private static BufferedImage three;
+    private static BufferedImage four;
+    private static BufferedImage five;
+    private static BufferedImage six;
+    private static BufferedImage seven;
+    private static BufferedImage eight;
+    private static BufferedImage nine;
+    private static BufferedImage ten;
+    private static BufferedImage slash;
+
 
     private static Boolean upPressed;
     private static Boolean downPressed;
@@ -742,7 +841,11 @@ public class Racer {
     private static double p2originalY;
     private static double p2velocity;
 
-    private static int level;
+    private static int maxLapNum;
+    private static int currentLapP1;
+    private static int currentLapP2;
+
+
 
     private static int expcount;
     private static int XOFFSET;

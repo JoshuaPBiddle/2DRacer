@@ -8,6 +8,8 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalTime;
+import java.util.Random;
 import java.util.Vector;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -36,7 +38,8 @@ public class Racer {
         p1originalY = (double) YOFFSET + ((double) WINWIDTH / 2.0) - (p1width / 2.0);
         p2originalX = (double) XOFFSET + ((double) WINWIDTH / 2.0) - (p1width / 2.0);
         p2originalY = (double) YOFFSET + ((double) WINWIDTH / 2.0) - (p1width / 2.0);
-
+        currentLapP1 = 0;
+        currentLapP2 = 0;
 
         try {
             background = ImageIO.read(new File("track1.png"));
@@ -45,6 +48,7 @@ public class Racer {
             orangeCar = ImageIO.read(new File("orangeLambo.png"));
             carBG = ImageIO.read(new File("carBG.png"));
             blueCar = ImageIO.read(new File("blueLambo.png"));
+            check1 = ImageIO.read(new File("check1.png"));
             slash = ImageIO.read(new File("slash.png"));
             zero = ImageIO.read(new File("number_0.png"));
             one = ImageIO.read(new File("number_1.png"));
@@ -57,6 +61,7 @@ public class Racer {
             eight = ImageIO.read(new File("number_8.png"));
             nine = ImageIO.read(new File("number_9.png"));
             ten = ImageIO.read(new File("number_10.png"));
+            check1 = ImageIO.read(new File("check1.png"));
         } catch (IOException ioe) {
 
         }
@@ -66,6 +71,7 @@ public class Racer {
         public void run() {
             while (!endgame) {
                 backgroundDraw();
+                checkpointsDraw();
                 player1Draw();
                 player2Draw();
                 currentLapsDrawP1();
@@ -110,7 +116,7 @@ public class Racer {
                 if (rightPressed) {
                     if (p1velocity < 0) {
                         p1.rotate(rotatestep);
-                    }  else {
+                    } else {
                         p1.rotate(-rotatestep);
                     }
                 }
@@ -131,7 +137,7 @@ public class Racer {
                 if (dPressed) {
                     if (p2velocity < 0) {
                         p2.rotate(rotatestep);
-                    }  else {
+                    } else {
                         p2.rotate(-rotatestep);
                     }
                 }
@@ -150,117 +156,47 @@ public class Racer {
         private double rotatestep;
     }
 
-    /*
+
     private static class CollisionChecker implements Runnable {
 
         public void run() {
             Random randomNumbers = new Random(LocalTime.now().getNano());
 
             while (!endgame) {
-                try {
-                    for (int i = 0; i < asteroids.size(); i++) {
-                        for (int j = 0; j < playerBullets.size(); j++) {
-                            if (collisionOccurs(asteroids.elementAt(i), playerBullets.elementAt(j))) {
-                                double posX = asteroids.elementAt(i).getX();
-                                double posY = asteroids.elementAt(i).getY();
+                // slow down cars off track
 
-                                // create explosion
-                                explosions.addElement(new ImageObject(posX, posY, 27, 24, 0.0));
-                                explosionsTimes.addElement(System.currentTimeMillis());
-
-                                // create two new asteroids of type 2
-                                if (asteroidsTypes.elementAt(i) == 1) {
-                                    asteroids.addElement(new ImageObject(posX, posY, ast2width,
-                                            ast2width, (double) (randomNumbers.nextInt(360))));
-                                    asteroidsTypes.addElement(2);
-                                    asteroids.remove(i);
-                                    asteroidsTypes.remove(i);
-                                    playerBullets.remove(j);
-                                    playerBulletsTimes.remove(j);
-                                }
-
-                                // create two new asteroids of type 3
-                                if (asteroidsTypes.elementAt(i) == 2) {
-                                    asteroids.addElement(new ImageObject(posX, posY, ast3width, ast3width, (double) (randomNumbers.nextInt(360))));
-                                    asteroidsTypes.addElement(3);
-                                    asteroids.remove(i);
-                                    asteroidsTypes.remove(i);
-                                    playerBullets.remove(j);
-                                    playerBulletsTimes.remove(j);
-                                }
-
-                                // delete asteroids
-                                if (asteroidsTypes.elementAt(i) == 3) {
-                                    asteroids.remove(i);
-                                    asteroidsTypes.remove(i);
-                                    playerBullets.remove(j);
-                                    playerBulletsTimes.remove(j);
-                                }
-                            }
-                        }
-                    }
-
-                    // compare all asteroids to player
-                    for (int i = 0; i < asteroids.size(); i++) {
-                        if (collisionOccurs(asteroids.elementAt(i), p1)) {
-                            endgame = true;
-                            System.out.println("Game Over. You Lose!");
-                        }
-                    }
-
-                    try {
-                        // compare all player bullets to enemy ship
-                        for (int i = 0; i < playerBullets.size(); i++) {
-                            if (collisionOccurs(playerBullets.elementAt(i), enemy)) {
-                                double posX = enemy.getX();
-                                double posY = enemy.getY();
-
-                                // create explosion
-                                explosions.addElement(new ImageObject(posX, posY, 27, 24, 0.0));
-                                explosionsTimes.addElement(System.currentTimeMillis());
-
-                                playerBullets.remove(i);
-                                playerBulletsTimes.remove(i);
-                                enemyAlive = false;
-                                enemy = null;
-                                enemyBullets.clear();
-                                enemyBulletsTimes.clear();
-                            }
-                        }
-
-                        // compare enemy ship to player
-                        if (collisionOccurs(enemy, p1)) {
-                            endgame = true;
-                            System.out.println("Game Over. You Lose!");
-                        }
-
-                        for (int i = 0; i < enemyBullets.size(); i++) {
-                            if (collisionOccurs(enemyBullets.elementAt(i), p1)) {
-                                endgame = true;
-                                System.out.println("Game Over. You Lose!");
-                            }
-                        }
-                    } catch (java.lang.NullPointerException jlnpe) {
-
-                    }
-                } catch (java.lang.ArrayIndexOutOfBoundsException jlaioobe) {
-
+                // count lap
+                if (collisionOccurs(p1, c1)) {
+                    System.out.println(currentLapP1);
+                }
+                /*  FIXME   add upon p2 implementation
+                if (collisionOccurs(p2, c1)) {
+                    p2LapCount += 1;
+                    System.out.println(p2LapCount);;
+                }
+                */
+                if (currentLapP1 >= currentLapP2) {
+                    lapCount = currentLapP1;
+                } else {
+                    lapCount = currentLapP2;
                 }
             }
         }
     }
 
+
+
     private static class WinChecker implements Runnable {
         public void run() {
             while (endgame = false) {
-                if (asteroids.size() == 0) {
+                if (lapCount >= maxLapNum) {
                     endgame = true;
                     System.out.println("Game Over. You Win!");
                 }
             }
         }
     }
-     */
+
 
     private static void lockrotateObjAroundObjbottom(ImageObject objOuter, ImageObject objInner, double dist) {
         objOuter.moveto(objInner.getX() + (dist + objInner.getWidth() / 2.0) * Math.cos(-objInner.getAngle() + pi / 2.0) + objOuter.getWidth() / 2.0,
@@ -279,7 +215,7 @@ public class Racer {
 
     private static AffineTransformOp rotateImageObject(ImageObject obj) {
         AffineTransform at = AffineTransform.getRotateInstance(-obj.getAngle(), obj.getHeight() / 2.0,
-                obj.getWidth() / 2.0 );
+                obj.getWidth() / 2.0);
         AffineTransformOp atop = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
         return atop;
     }
@@ -289,6 +225,14 @@ public class Racer {
                 obj.getWidth() / 2.0, obj.getHeight() / 2.0);
         AffineTransformOp atop = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
         return atop;
+    }
+
+    // FIXME remove before final version
+    // this method draws visual indicators of the checkpoints
+    private static void checkpointsDraw() {
+        Graphics g = appFrame.getGraphics();
+        Graphics2D g2D = (Graphics2D) g;
+        g2D.drawImage(rotateImageObject(c1).filter(check1, null), (int)(c1.getX()), (int)(c1.getY()), null);
     }
 
     private static void backgroundDraw() {
@@ -317,7 +261,8 @@ public class Racer {
             case 9 -> g2D.drawImage(nine, XOFFSET + 480, YOFFSET + 465, null);
             case 10 -> g2D.drawImage(ten, XOFFSET + 480, YOFFSET + 465, null);
             default -> g2D.drawImage(zero, XOFFSET + 480, YOFFSET + 465, null);
-        };
+        }
+        ;
 
         g2D.drawImage(slash, XOFFSET + 500, YOFFSET + 455, null);
 
@@ -333,7 +278,8 @@ public class Racer {
             case 9 -> g2D.drawImage(nine, XOFFSET + 520, YOFFSET + 465, null);
             case 10 -> g2D.drawImage(ten, XOFFSET + 520, YOFFSET + 465, null);
             default -> g2D.drawImage(three, XOFFSET + 520, YOFFSET + 465, null);
-        };
+        }
+        ;
     }
 
     //orange car
@@ -342,18 +288,19 @@ public class Racer {
         Graphics2D g2D = (Graphics2D) g;
 
         switch (currentLapP1) {
-        case 1 -> g2D.drawImage(one, XOFFSET + 205, YOFFSET + 465, null);
-        case 2 -> g2D.drawImage(two, XOFFSET + 205, YOFFSET + 465, null);
-        case 3 -> g2D.drawImage(three, XOFFSET + 205, YOFFSET + 465, null);
-        case 4 -> g2D.drawImage(four, XOFFSET + 205, YOFFSET + 465, null);
-        case 5 -> g2D.drawImage(five, XOFFSET + 205, YOFFSET + 465, null);
-        case 6 -> g2D.drawImage(six, XOFFSET + 205, YOFFSET + 465, null);
-        case 7 -> g2D.drawImage(seven, XOFFSET + 205, YOFFSET + 465, null);
-        case 8 -> g2D.drawImage(eight, XOFFSET + 205, YOFFSET + 465, null);
-        case 9 -> g2D.drawImage(nine, XOFFSET + 205, YOFFSET + 465, null);
-        case 10 -> g2D.drawImage(ten, XOFFSET + 205, YOFFSET + 465, null);
-        default -> g2D.drawImage(zero, XOFFSET + 205, YOFFSET + 465, null);
-    };
+            case 1 -> g2D.drawImage(one, XOFFSET + 205, YOFFSET + 465, null);
+            case 2 -> g2D.drawImage(two, XOFFSET + 205, YOFFSET + 465, null);
+            case 3 -> g2D.drawImage(three, XOFFSET + 205, YOFFSET + 465, null);
+            case 4 -> g2D.drawImage(four, XOFFSET + 205, YOFFSET + 465, null);
+            case 5 -> g2D.drawImage(five, XOFFSET + 205, YOFFSET + 465, null);
+            case 6 -> g2D.drawImage(six, XOFFSET + 205, YOFFSET + 465, null);
+            case 7 -> g2D.drawImage(seven, XOFFSET + 205, YOFFSET + 465, null);
+            case 8 -> g2D.drawImage(eight, XOFFSET + 205, YOFFSET + 465, null);
+            case 9 -> g2D.drawImage(nine, XOFFSET + 205, YOFFSET + 465, null);
+            case 10 -> g2D.drawImage(ten, XOFFSET + 205, YOFFSET + 465, null);
+            default -> g2D.drawImage(zero, XOFFSET + 205, YOFFSET + 465, null);
+        }
+        ;
 
         g2D.drawImage(slash, XOFFSET + 225, YOFFSET + 455, null);
 
@@ -369,7 +316,8 @@ public class Racer {
             case 9 -> g2D.drawImage(nine, XOFFSET + 245, YOFFSET + 465, null);
             case 10 -> g2D.drawImage(ten, XOFFSET + 245, YOFFSET + 465, null);
             default -> g2D.drawImage(three, XOFFSET + 245, YOFFSET + 465, null);
-        };
+        }
+        ;
     }
 
 
@@ -488,6 +436,7 @@ public class Racer {
 
             p1 = new ImageObject(p1originalX, p1originalY, p1width, p1height, -1.6);
             p2 = new ImageObject(p2originalX, p2originalY, p2width, p2height, -1.6);
+            c1 = new ImageObject(397, 403, 25, 49, 0.0);
             p1velocity = 0.0;
             p2velocity = 0.0;
             expcount = 1;
@@ -497,16 +446,15 @@ public class Racer {
 
             }
             endgame = false;
-            //Thread t1 = new Thread(introDraw());
-            Thread t2 = new Thread(new Animate());
-            Thread t3 = new Thread(new PlayerMover());
-            //Thread t8 = new Thread(new CollisionChecker());
-            //Thread t9 = new Thread(new WinChecker());
-            //t1.start();
+
+            Thread t1 = new Thread(new Animate());
+            Thread t2 = new Thread(new PlayerMover());
+            Thread t3 = new Thread(new CollisionChecker());
+            Thread t4 = new Thread(new WinChecker());
+            t1.start();
             t2.start();
             t3.start();
-            //t8.start();
-            //t9.start();
+            t4.start();
         }
     }
 
@@ -557,7 +505,7 @@ public class Racer {
         return ret;
     }
 
-    /*
+
     public static Boolean collisionOccursCoordinates(double p1x1, double p1y1, double p1x2, double p1y2, double p2x1,
                                                      double p2y1, double p2x2, double p2y2) {
         return isInside(p1x1, p1y1, p2x1, p2y1, p2x2, p2y2) || isInside(p1x1, p1y2, p2x1, p2y1, p2x2, p2y2) ||
@@ -571,8 +519,6 @@ public class Racer {
                 obj1.getY() + obj1.getHeight(), obj2.getX(), obj2.getY(), obj2.getX() + obj2.getWidth(),
                 obj2.getY() + obj2.getHeight());
     }
-
-     */
 
     private static class ImageObject {
         public ImageObject() {
@@ -815,6 +761,7 @@ public class Racer {
     private static BufferedImage nine;
     private static BufferedImage ten;
     private static BufferedImage slash;
+    private static BufferedImage check1;
 
 
     private static Boolean upPressed;
@@ -833,6 +780,7 @@ public class Racer {
     private static double p1originalX;
     private static double p1originalY;
     private static double p1velocity;
+    private static ImageObject c1;
 
     private static ImageObject p2;
     private static double p2width;
@@ -844,7 +792,7 @@ public class Racer {
     private static int maxLapNum;
     private static int currentLapP1;
     private static int currentLapP2;
-
+    private static int lapCount;
 
 
     private static int expcount;

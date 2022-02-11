@@ -46,14 +46,16 @@ public class Racer {
         c1width = 25;
         c1height = 49;
         c1angle = 0.0;
-        c1active = false;
+        p1c1active = false;
+        p2c1active = false;
 
         c2X = 486;
         c2Y = 42;
         c2width = 25;
         c2height = 49;
         c2angle = 0.0;
-        c2active = true;
+        p1c2active = true;
+        p2c2active = false;
 
         try {
             background = ImageIO.read(new File("track1.png"));
@@ -95,7 +97,7 @@ public class Racer {
                 try {
                     Thread.sleep(32);
                 } catch (InterruptedException e) {
-
+                    System.out.println("Error: " + e);
                 }
             }
         }
@@ -104,7 +106,7 @@ public class Racer {
     private static class PlayerMover implements Runnable {
         public PlayerMover() {
             velocitystep = 0.01;
-            rotatestep = 0.01;
+            rotatestep = 0.02;
         }
 
         public void run() {
@@ -112,14 +114,22 @@ public class Racer {
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
-
+                    System.out.println("Error: " + e);
                 }
 
+                // FIXME releasing up stops car immediately
                 if (upPressed) {
                     p1velocity = p1velocity + velocitystep;
                 }
-                if (downPressed) {
+                else if (downPressed) {
                     p1velocity = p1velocity - velocitystep;
+                }
+                else {
+                    if (p1velocity >= 0) {
+                        p1velocity = p1velocity - velocitystep * 0.5;
+                    } else {
+                        p1velocity = p1velocity + velocitystep * 0.5;
+                    }
                 }
                 if (leftPressed) {
                     if (p1velocity < 0) {
@@ -136,6 +146,7 @@ public class Racer {
                     }
                 }
 
+                // FIXME match control logic
                 if (wPressed) {
                     p2velocity = p2velocity + velocitystep;
                 }
@@ -175,33 +186,34 @@ public class Racer {
     private static class CollisionChecker implements Runnable {
 
         public void run() {
-            Random randomNumbers = new Random(LocalTime.now().getNano());
-
             while (!endgame) {
                 // slow down cars off track
 
-                // count lap
-                if (collisionOccurs(p1, c1) && c1active) {
+                // p1 lap count
+                if (collisionOccurs(p1, c1) && p1c1active) {
                     currentLapP1 += 1;
                     System.out.println(currentLapP1);
-                    c1active = false;
-                    c2active = true;
+                    p1c1active = false;
+                    p1c2active = true;
                 }
-                if (collisionOccurs(p1, c2) && c2active) {
-                    c2active = false;
-                    c1active = true;
+                if (collisionOccurs(p1, c2) && p1c2active) {
+                    p1c2active = false;
+                    p1c1active = true;
                 }
-                /*  FIXME   add upon p2 implementation
-                if (collisionOccurs(p2, c1)) {
-                    p2LapCount += 1;
-                    System.out.println(p2LapCount);;
+
+                //p2 lap count
+                if (collisionOccurs(p2, c1) && p2c1active) {
+                    currentLapP2 += 1;
+                    System.out.println(currentLapP2);
+                    p2c1active = false;
+                    p2c2active = true;
                 }
-                */
-                if (currentLapP1 >= currentLapP2) {
-                    lapCount = currentLapP1;
-                } else {
-                    lapCount = currentLapP2;
+                if (collisionOccurs(p2,c2) && p2c2active) {
+                    p2c2active = false;
+                    p2c1active = true;
                 }
+
+                lapCount = Math.max(currentLapP1, currentLapP2);
             }
         }
     }
@@ -211,7 +223,7 @@ public class Racer {
     private static class WinChecker implements Runnable {
         public void run() {
             while (endgame = false) {
-                if (lapCount >= maxLapNum) {
+                if (lapCount >= maxLapNum) {    // FIXME does not end at three laps
                     endgame = true;
                     System.out.println("Game Over. You Win!");
                 }
@@ -219,7 +231,7 @@ public class Racer {
         }
     }
 
-
+    /*
     private static void lockrotateObjAroundObjbottom(ImageObject objOuter, ImageObject objInner, double dist) {
         objOuter.moveto(objInner.getX() + (dist + objInner.getWidth() / 2.0) * Math.cos(-objInner.getAngle() + pi / 2.0) + objOuter.getWidth() / 2.0,
                 objInner.getY() + (dist + objInner.getHeight() / 2.0) * Math.sin(-objInner.getAngle() + pi / 2.0)
@@ -234,19 +246,18 @@ public class Racer {
 
         objOuter.setAngle(objInner.getAngle());
     }
+    */
 
     private static AffineTransformOp rotateImageObject(ImageObject obj) {
         AffineTransform at = AffineTransform.getRotateInstance(-obj.getAngle(), obj.getHeight() / 2.0,
                 obj.getWidth() / 2.0);
-        AffineTransformOp atop = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-        return atop;
+        return new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
     }
 
     private static AffineTransformOp spinImageObject(ImageObject obj) {
         AffineTransform at = AffineTransform.getRotateInstance(-obj.getInternalangle(),
                 obj.getWidth() / 2.0, obj.getHeight() / 2.0);
-        AffineTransformOp atop = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-        return atop;
+        return new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
     }
 
     // FIXME remove before final version
@@ -255,7 +266,9 @@ public class Racer {
         Graphics g = appFrame.getGraphics();
         Graphics2D g2D = (Graphics2D) g;
         g2D.drawImage(rotateImageObject(c1).filter(check1, null), (int)(c1.getX()), (int)(c1.getY()), null);
-        g2D.drawImage(rotateImageObject(c2).filter(check2, null), (int)(c2.getX()), (int)(c2.getY()), null);
+
+        // FIXME null image error
+        //g2D.drawImage(rotateImageObject(c2).filter(check2, null), (int)(c2.getX()), (int)(c2.getY()), null);
     }
 
     private static void backgroundDraw() {
@@ -285,7 +298,6 @@ public class Racer {
             case 10 -> g2D.drawImage(ten, XOFFSET + 480, YOFFSET + 465, null);
             default -> g2D.drawImage(zero, XOFFSET + 480, YOFFSET + 465, null);
         }
-        ;
 
         g2D.drawImage(slash, XOFFSET + 500, YOFFSET + 455, null);
 
@@ -302,7 +314,6 @@ public class Racer {
             case 10 -> g2D.drawImage(ten, XOFFSET + 520, YOFFSET + 465, null);
             default -> g2D.drawImage(three, XOFFSET + 520, YOFFSET + 465, null);
         }
-        ;
     }
 
     //orange car
@@ -310,7 +321,7 @@ public class Racer {
         Graphics g = appFrame.getGraphics();
         Graphics2D g2D = (Graphics2D) g;
 
-        switch (currentLapP1) {
+        switch (currentLapP2) {
             case 1 -> g2D.drawImage(one, XOFFSET + 205, YOFFSET + 465, null);
             case 2 -> g2D.drawImage(two, XOFFSET + 205, YOFFSET + 465, null);
             case 3 -> g2D.drawImage(three, XOFFSET + 205, YOFFSET + 465, null);
@@ -323,7 +334,6 @@ public class Racer {
             case 10 -> g2D.drawImage(ten, XOFFSET + 205, YOFFSET + 465, null);
             default -> g2D.drawImage(zero, XOFFSET + 205, YOFFSET + 465, null);
         }
-        ;
 
         g2D.drawImage(slash, XOFFSET + 225, YOFFSET + 455, null);
 
@@ -340,7 +350,6 @@ public class Racer {
             case 10 -> g2D.drawImage(ten, XOFFSET + 245, YOFFSET + 465, null);
             default -> g2D.drawImage(three, XOFFSET + 245, YOFFSET + 465, null);
         }
-        ;
     }
 
 
@@ -463,7 +472,6 @@ public class Racer {
             c2 = new ImageObject(c2X, c2Y, c2width, c2height, c2angle);
             p1velocity = 0.0;
             p2velocity = 0.0;
-            expcount = 1;
             try {
                 Thread.sleep(50);
             } catch (InterruptedException ie) {
@@ -619,6 +627,7 @@ public class Racer {
             }
         }
 
+
         public void printTriangles() {
             for (int i = 0; i < triangles.size(); i += 6) {
                 System.out.print("p0x: " + triangles.elementAt(i) + " p0y: " + triangles.elementAt(i + 1));
@@ -695,6 +704,7 @@ public class Racer {
                 internalangle += twoPi;
             }
         }
+
 
         private double x;
         private double y;
@@ -817,7 +827,8 @@ public class Racer {
     private static double c1width;
     private static double c1height;
     private static double c1angle;
-    private static boolean c1active;
+    private static boolean p1c1active;
+    private static boolean p2c1active;
 
     private static BufferedImage check2;
     private static ImageObject c2;
@@ -826,15 +837,14 @@ public class Racer {
     private static double c2width;
     private static double c2height;
     private static double c2angle;
-    private static boolean c2active;
+    private static boolean p1c2active;
+    private static boolean p2c2active;
 
     private static int maxLapNum;
     private static int currentLapP1;
     private static int currentLapP2;
     private static int lapCount;
 
-
-    private static int expcount;
     private static int XOFFSET;
     private static int YOFFSET;
     private static int WINWIDTH;

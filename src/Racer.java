@@ -46,16 +46,17 @@ public class Racer {
         c1width = 25;
         c1height = 49;
         c1angle = 0.0;
-        p1c1active = false;
-        p2c1active = false;
 
         c2X = 486;
         c2Y = 42;
         c2width = 25;
         c2height = 49;
         c2angle = 0.0;
+
+        p1c1active = false;
+        p2c1active = false;
         p1c2active = true;
-        p2c2active = false;
+        p2c2active = true;
 
         try {
             background = ImageIO.read(new File("track1.png"));
@@ -192,11 +193,12 @@ public class Racer {
                 // p1 lap count
                 if (collisionOccurs(p1, c1) && p1c1active) {
                     currentLapP1 += 1;
-                    System.out.println(currentLapP1);
+                    System.out.println("p1 lap up: " + currentLapP1);
                     p1c1active = false;
                     p1c2active = true;
                 }
                 if (collisionOccurs(p1, c2) && p1c2active) {
+                    System.out.println("p1 checkpoint");
                     p1c2active = false;
                     p1c1active = true;
                 }
@@ -204,11 +206,12 @@ public class Racer {
                 //p2 lap count
                 if (collisionOccurs(p2, c1) && p2c1active) {
                     currentLapP2 += 1;
-                    System.out.println(currentLapP2);
+                    System.out.println("p2 lap up: " + currentLapP2);
                     p2c1active = false;
                     p2c2active = true;
                 }
-                if (collisionOccurs(p2,c2) && p2c2active) {
+                if (collisionOccurs(p2, c2) && p2c2active) {
+                    System.out.println("p2 checkpoint");
                     p2c2active = false;
                     p2c1active = true;
                 }
@@ -265,7 +268,7 @@ public class Racer {
     private static void checkpointsDraw() {
         Graphics g = appFrame.getGraphics();
         Graphics2D g2D = (Graphics2D) g;
-        g2D.drawImage(rotateImageObject(c1).filter(check1, null), (int)(c1.getX()), (int)(c1.getY()), null);
+        //g2D.drawImage(rotateImageObject(c1).filter(check1, null), (int)(c1.getX()), (int)(c1.getY()), null);
 
         // FIXME null image error
         //g2D.drawImage(rotateImageObject(c2).filter(check2, null), (int)(c2.getX()), (int)(c2.getY()), null);

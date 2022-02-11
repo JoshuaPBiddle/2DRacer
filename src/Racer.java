@@ -41,6 +41,20 @@ public class Racer {
         currentLapP1 = 0;
         currentLapP2 = 0;
 
+        c1X = 397;
+        c1Y = 403;
+        c1width = 25;
+        c1height = 49;
+        c1angle = 0.0;
+        c1active = false;
+
+        c2X = 486;
+        c2Y = 42;
+        c2width = 25;
+        c2height = 49;
+        c2angle = 0.0;
+        c2active = true;
+
         try {
             background = ImageIO.read(new File("track1.png"));
             player1 = ImageIO.read(new File("Player1.png"));
@@ -62,8 +76,9 @@ public class Racer {
             nine = ImageIO.read(new File("number_9.png"));
             ten = ImageIO.read(new File("number_10.png"));
             check1 = ImageIO.read(new File("check1.png"));
+            check2 = ImageIO.read(new File("check2.png"));
         } catch (IOException ioe) {
-
+            // System.out.println("Image read error!" + ioe);
         }
     }
 
@@ -166,10 +181,15 @@ public class Racer {
                 // slow down cars off track
 
                 // count lap
-                if (collisionOccurs(p1, c1)) {
+                if (collisionOccurs(p1, c1) && c1active) {
                     currentLapP1 += 1;
                     System.out.println(currentLapP1);
-                    break;
+                    c1active = false;
+                    c2active = true;
+                }
+                if (collisionOccurs(p1, c2) && c2active) {
+                    c2active = false;
+                    c1active = true;
                 }
                 /*  FIXME   add upon p2 implementation
                 if (collisionOccurs(p2, c1)) {
@@ -235,6 +255,7 @@ public class Racer {
         Graphics g = appFrame.getGraphics();
         Graphics2D g2D = (Graphics2D) g;
         g2D.drawImage(rotateImageObject(c1).filter(check1, null), (int)(c1.getX()), (int)(c1.getY()), null);
+        g2D.drawImage(rotateImageObject(c2).filter(check2, null), (int)(c2.getX()), (int)(c2.getY()), null);
     }
 
     private static void backgroundDraw() {
@@ -438,7 +459,8 @@ public class Racer {
 
             p1 = new ImageObject(p1originalX, p1originalY, p1width, p1height, -1.6);
             p2 = new ImageObject(p2originalX, p2originalY, p2width, p2height, -1.6);
-            c1 = new ImageObject(397, 403, 25, 49, 0.0);
+            c1 = new ImageObject(c1X, c1Y, c1width, c1height, c1angle);
+            c2 = new ImageObject(c2X, c2Y, c2width, c2height, c2angle);
             p1velocity = 0.0;
             p2velocity = 0.0;
             expcount = 1;
@@ -763,8 +785,6 @@ public class Racer {
     private static BufferedImage nine;
     private static BufferedImage ten;
     private static BufferedImage slash;
-    private static BufferedImage check1;
-
 
     private static Boolean upPressed;
     private static Boolean downPressed;
@@ -782,7 +802,6 @@ public class Racer {
     private static double p1originalX;
     private static double p1originalY;
     private static double p1velocity;
-    private static ImageObject c1;
 
     private static ImageObject p2;
     private static double p2width;
@@ -790,6 +809,24 @@ public class Racer {
     private static double p2originalX;
     private static double p2originalY;
     private static double p2velocity;
+
+    private static BufferedImage check1;
+    private static ImageObject c1;
+    private static double c1X;
+    private static double c1Y;
+    private static double c1width;
+    private static double c1height;
+    private static double c1angle;
+    private static boolean c1active;
+
+    private static BufferedImage check2;
+    private static ImageObject c2;
+    private static double c2X;
+    private static double c2Y;
+    private static double c2width;
+    private static double c2height;
+    private static double c2angle;
+    private static boolean c2active;
 
     private static int maxLapNum;
     private static int currentLapP1;

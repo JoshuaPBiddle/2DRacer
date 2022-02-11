@@ -41,6 +41,9 @@ public class Racer {
         currentLapP1 = 0;
         currentLapP2 = 0;
 
+        p1maxVelocity = 10;
+        p2maxVelocity = 10;
+
         c1X = 397;
         c1Y = 403;
         c1width = 25;
@@ -53,7 +56,10 @@ public class Racer {
         c2height = 49;
         c2angle = 0.0;
 
-
+        g1X = 0;
+        g1Y = 0;
+        g1width = 25;
+        g1height = 25;
 
         p1c1active = false;
         p2c1active = false;
@@ -81,9 +87,10 @@ public class Racer {
             nine = ImageIO.read(new File("number_9.png"));
             ten = ImageIO.read(new File("number_10.png"));
             check1 = ImageIO.read(new File("check1.png"));
-            check2 = ImageIO.read(new File("check2.png"));
+            check2 = ImageIO.read(new File("../check2.png"));
+            grass1 = ImageIO.read(new File("../grass1.png"));
         } catch (IOException ioe) {
-            // System.out.println("Image read error!" + ioe);
+            System.out.println("Image read error!" + ioe);
         }
     }
 
@@ -148,7 +155,6 @@ public class Racer {
                     }
                 }
 
-                // FIXME match control logic
                 if (wPressed) {
                     p2velocity = p2velocity + velocitystep;
                 }
@@ -196,6 +202,17 @@ public class Racer {
         public void run() {
             while (!endgame) {
                 // slow down cars off track
+                if (collisionOccurs(p1, g1)) {
+                    p1maxVelocity = 2;
+                } else {
+                    p1maxVelocity = 10;
+                }
+
+                if (collisionOccurs(p2, g1)) {
+                    p2maxVelocity = 2;
+                } else {
+                    p2maxVelocity = 10;
+                }
 
                 // p1 lap count
                 if (collisionOccurs(p1, c1) && p1c1active) {
@@ -279,6 +296,7 @@ public class Racer {
 
         // FIXME null image error
         //g2D.drawImage(rotateImageObject(c2).filter(check2, null), (int)(c2.getX()), (int)(c2.getY()), null);
+        //g2D.drawImage(rotateImageObject(g1).filter(grass1, null), (int)(g1.getX()), (int)(g1.getY()), null);
     }
 
     private static void backgroundDraw() {
@@ -476,6 +494,7 @@ public class Racer {
             p2 = new ImageObject(p2originalX, p2originalY, p2width, p2height, -1.6);
             c1 = new ImageObject(c1X, c1Y, c1width, c1height, c1angle);
             c2 = new ImageObject(c2X, c2Y, c2width, c2height, c2angle);
+            g1 = new ImageObject(g1X, g1Y, g1width, g1height, g1angle);
             p1velocity = 0.0;
             p2velocity = 0.0;
             try {
@@ -821,6 +840,7 @@ public class Racer {
     private static double p1originalX;
     private static double p1originalY;
     private static double p1velocity;
+    private static double p1maxVelocity;
 
     private static ImageObject p2;
     private static double p2width;
@@ -828,6 +848,7 @@ public class Racer {
     private static double p2originalX;
     private static double p2originalY;
     private static double p2velocity;
+    private static double p2maxVelocity;
 
     private static BufferedImage check1;
     private static ImageObject c1;

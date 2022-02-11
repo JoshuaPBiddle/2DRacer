@@ -48,10 +48,12 @@ public class Racer {
         c1angle = 0.0;
 
         c2X = 486;
-        c2Y = 42;
+        c2Y = 83;
         c2width = 25;
         c2height = 49;
         c2angle = 0.0;
+
+
 
         p1c1active = false;
         p2c1active = false;
@@ -118,12 +120,11 @@ public class Racer {
                     System.out.println("Error: " + e);
                 }
 
-                // FIXME releasing up stops car immediately
                 if (upPressed) {
                     p1velocity = p1velocity + velocitystep;
                 }
                 else if (downPressed) {
-                    p1velocity = p1velocity - velocitystep;
+                    p1velocity = p1velocity - velocitystep * 1.5;
                 }
                 else {
                     if (p1velocity >= 0) {
@@ -151,8 +152,14 @@ public class Racer {
                 if (wPressed) {
                     p2velocity = p2velocity + velocitystep;
                 }
-                if (sPressed) {
-                    p2velocity = p2velocity - velocitystep;
+                else if (sPressed) {
+                    p2velocity = p2velocity - velocitystep * 1.5;
+                } else {
+                    if (p2velocity >= 0) {
+                        p2velocity = p2velocity - velocitystep * 0.5;
+                    } else {
+                        p2velocity = p2velocity + velocitystep * 0.5;
+                    }
                 }
                 if (aPressed) {
                     if (p2velocity < 0) {
@@ -171,11 +178,11 @@ public class Racer {
 
                 p1.move(-p1velocity * Math.cos(p1.getAngle() - pi / 2.0),
                         p1velocity * Math.sin(p1.getAngle() - pi / 2.0));
-                p1.screenWrap(XOFFSET, XOFFSET + WINWIDTH, YOFFSET, YOFFSET + WINHEIGHT);
+                //p1.screenWrap(XOFFSET, XOFFSET + WINWIDTH, YOFFSET, YOFFSET + WINHEIGHT);
 
                 p2.move(-p2velocity * Math.cos(p2.getAngle() - pi / 2.0),
                         p2velocity * Math.sin(p2.getAngle() - pi / 2.0));
-                p2.screenWrap(XOFFSET, XOFFSET + WINWIDTH, YOFFSET, YOFFSET + WINHEIGHT);
+                //p2.screenWrap(XOFFSET, XOFFSET + WINWIDTH, YOFFSET, YOFFSET + WINHEIGHT);
             }
         }
 
@@ -420,11 +427,9 @@ public class Racer {
         public void actionPerformed(ActionEvent e) {
             if (action.equals("UP")) {
                 upPressed = false;
-                p1velocity = 0.0;
             }
             if (action.equals("DOWN")) {
                 downPressed = false;
-                p1velocity = 0.0;
             }
             if (action.equals("LEFT")) {
                 leftPressed = false;
@@ -434,11 +439,9 @@ public class Racer {
             }
             if (action.equals("W")) {
                 wPressed = false;
-                p2velocity = 0.0;
             }
             if (action.equals("S")) {
                 sPressed = false;
-                p2velocity = 0.0;
             }
             if (action.equals("A")) {
                 aPressed = false;
@@ -671,6 +674,7 @@ public class Racer {
             y = yinput;
         }
 
+        /*
         public void screenWrap(double leftEdge, double rightEdge, double topEdge, double bottomEdge) {
             if (x > rightEdge) {
                 moveto(leftEdge, getY());
@@ -685,6 +689,8 @@ public class Racer {
                 moveto(getX(), bottomEdge);
             }
         }
+
+         */
 
         public void rotate(double angleinput) {
             angle += angleinput;
@@ -842,6 +848,14 @@ public class Racer {
     private static double c2angle;
     private static boolean p1c2active;
     private static boolean p2c2active;
+
+    private static BufferedImage grass1;
+    private static ImageObject g1;
+    private static double g1X;
+    private static double g1Y;
+    private static double g1width;
+    private static double g1height;
+    private static double g1angle;
 
     private static int maxLapNum;
     private static int currentLapP1;

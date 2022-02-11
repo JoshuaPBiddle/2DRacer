@@ -53,7 +53,29 @@ public class Racer {
         c2height = 49;
         c2angle = 0.0;
 
+        tX = 0;
+        tY = 0;
+        twidth = 801;
+        theight = 9;
+        tangle = 0.0;
 
+        bX = 50;
+        bY = 470;
+        bwidth = 801;
+        bheight = 9;
+        bangle = 0.0;
+
+        lX = 0;
+        lY = 0;
+        lwidth = 9;
+        lheight = 500;
+        langle = 0.0;
+
+        rX = 790;
+        rY = 0;
+        rwidth = 9;
+        rheight = 500;
+        rangle = 0.0;
 
         p1c1active = false;
         p2c1active = false;
@@ -61,6 +83,10 @@ public class Racer {
         p2c2active = true;
 
         try {
+            topWall = ImageIO.read(new File("topWall.png"));
+            bottomWall = ImageIO.read(new File("bottomWall.png"));
+            rightWall = ImageIO.read(new File("rightWall.png"));
+            leftWall = ImageIO.read(new File("leftWall.png"));
             p1wins = ImageIO.read(new File("player1wins.png"));
             p2wins = ImageIO.read(new File("player2wins.png"));
             p2winText = ImageIO.read(new File("p2winText.png"));
@@ -96,6 +122,7 @@ public class Racer {
             while (!endgame) {
                 backgroundDraw();
                 checkpointsDraw();
+                //wallsDraw();
                 player1Draw();
                 player2Draw();
                 currentLapsDrawP1();
@@ -127,8 +154,15 @@ public class Racer {
                 if (upPressed) {
                     p1velocity = p1velocity + velocitystep;
                 }
-                if (downPressed) {
-                    p1velocity = p1velocity - velocitystep;
+                else if (downPressed) {
+                    p1velocity = p1velocity - velocitystep * 1.5;
+                }
+                else {
+                    if (p1velocity >= 0) {
+                        p1velocity = p1velocity - velocitystep * 0.5;
+                    } else {
+                        p1velocity = p1velocity + velocitystep * 0.5;
+                    }
                 }
                 if (leftPressed) {
                     if (p1velocity < 0) {
@@ -145,11 +179,18 @@ public class Racer {
                     }
                 }
 
+                // FIXME match control logic
                 if (wPressed) {
                     p2velocity = p2velocity + velocitystep;
                 }
-                if (sPressed) {
-                    p2velocity = p2velocity - velocitystep;
+                else if (sPressed) {
+                    p2velocity = p2velocity - velocitystep * 1.5;
+                } else {
+                    if (p2velocity >= 0) {
+                        p2velocity = p2velocity - velocitystep * 0.5;
+                    } else {
+                        p2velocity = p2velocity + velocitystep * 0.5;
+                    }
                 }
                 if (aPressed) {
                     if (p2velocity < 0) {
@@ -168,11 +209,11 @@ public class Racer {
 
                 p1.move(-p1velocity * Math.cos(p1.getAngle() - pi / 2.0),
                         p1velocity * Math.sin(p1.getAngle() - pi / 2.0));
-                p1.screenWrap(XOFFSET, XOFFSET + WINWIDTH, YOFFSET, YOFFSET + WINHEIGHT);
+                //p1.screenWrap(XOFFSET, XOFFSET + WINWIDTH, YOFFSET, YOFFSET + WINHEIGHT);
 
                 p2.move(-p2velocity * Math.cos(p2.getAngle() - pi / 2.0),
                         p2velocity * Math.sin(p2.getAngle() - pi / 2.0));
-                p2.screenWrap(XOFFSET, XOFFSET + WINWIDTH, YOFFSET, YOFFSET + WINHEIGHT);
+                //p2.screenWrap(XOFFSET, XOFFSET + WINWIDTH, YOFFSET, YOFFSET + WINHEIGHT);
             }
         }
 
@@ -206,11 +247,61 @@ public class Racer {
                     p2c1active = false;
                     p2c2active = true;
                 }
+
                 if (collisionOccurs(p2, c2) && p2c2active) {
                     System.out.println("p2 checkpoint");
                     p2c2active = false;
                     p2c1active = true;
                 }
+
+                //p1TopWallCollision
+                if (collisionOccurs(p1, top)) {
+                    System.out.println("p1 hit top");
+                    p1velocity = 0.0;
+                }
+
+                //p2TopWallCollision
+                if (collisionOccurs(p2, top)) {
+                    System.out.println("p2 hit top");
+                    p2velocity = 0.0;
+                }
+
+                //p1RightWallCollision
+                if (collisionOccurs(p1, right)) {
+                    System.out.println("p1 hit right");
+                    p1velocity = 0.0;
+                }
+
+                //p2RightWallCollision
+                if (collisionOccurs(p2, right)) {
+                    System.out.println("p2 hit right");
+                    p2velocity = 0.0;
+                }
+
+                //p1LeftWallCollision
+                if (collisionOccurs(p1, left)) {
+                    System.out.println("p1 hit left");
+                    p1velocity = 0.0;
+                }
+
+                //p2LeftWallCollision
+                if (collisionOccurs(p2, left)) {
+                    System.out.println("p2 hit left");
+                    p2velocity = 0.0;
+                }
+
+                //p1BottomWallCollision
+                if (collisionOccurs(p1, bottom)) {
+                    System.out.println("p1 hit bottom");
+                    p1velocity = 0.0;
+                }
+
+                //p2BottomWallCollision
+                if (collisionOccurs(p2, bottom)) {
+                    System.out.println("p2 hit bottom");
+                    p2velocity = 0.0;
+                }
+
 
                 if (currentLapP1 >= currentLapP2) {
                     lapCount = currentLapP1;
@@ -285,9 +376,22 @@ public class Racer {
     private static void checkpointsDraw() {
         Graphics g = appFrame.getGraphics();
         Graphics2D g2D = (Graphics2D) g;
-        g2D.drawImage(rotateImageObject(c1).filter(check1, null), (int) (c1.getX()), (int) (c1.getY()), null);
-        g2D.drawImage(rotateImageObject(c2).filter(check1, null), (int) (c2.getX()), (int) (c2.getY()), null);
+        //g2D.drawImage(rotateImageObject(c1).filter(check1, null), (int) (c1.getX()), (int) (c1.getY()), null);
+        //g2D.drawImage(rotateImageObject(c2).filter(check1, null), (int) (c2.getX()), (int) (c2.getY()), null);
     }
+
+    /*
+    private static void wallsDraw() {
+        Graphics g = appFrame.getGraphics();
+        Graphics2D g2D = (Graphics2D) g;
+
+        g2D.drawImage(rotateImageObject(top).filter(topWall, null), (int) (top.getX()), (int) (top.getY()), null);
+        g2D.drawImage(rotateImageObject(bottom).filter(bottomWall, null), (int) (bottom.getX()), (int) (bottom.getY()),null);
+        g2D.drawImage(rotateImageObject(right).filter(rightWall, null), (int) (right.getX()), (int) (right.getY()), null);
+        g2D.drawImage(rotateImageObject(left).filter(leftWall, null), (int) (left.getX()), (int) (left.getY()), null);
+    }
+
+     */
 
     private static void backgroundDraw() {
         Graphics g = appFrame.getGraphics();
@@ -433,11 +537,9 @@ public class Racer {
         public void actionPerformed(ActionEvent e) {
             if (action.equals("UP")) {
                 upPressed = false;
-                p1velocity = 0.0;
             }
             if (action.equals("DOWN")) {
                 downPressed = false;
-                p1velocity = 0.0;
             }
             if (action.equals("LEFT")) {
                 leftPressed = false;
@@ -447,11 +549,9 @@ public class Racer {
             }
             if (action.equals("W")) {
                 wPressed = false;
-                p2velocity = 0.0;
             }
             if (action.equals("S")) {
                 sPressed = false;
-                p2velocity = 0.0;
             }
             if (action.equals("A")) {
                 aPressed = false;
@@ -494,6 +594,10 @@ public class Racer {
             //c2 = new ImageObject(407, 403, 25, 49, 0.0);
             c1 = new ImageObject(c1X, c1Y, c1width, c1height, c1angle);
             c2 = new ImageObject(c2X, c2Y, c2width, c2height, c2angle);
+            top = new ImageObject(tX, tY, twidth, theight, tangle);
+            bottom = new ImageObject(bX, bY, bwidth, bheight, bangle);
+            left = new ImageObject(lX, lY, lwidth, lheight, langle);
+            right = new ImageObject(rX, rY, rwidth, rheight, rangle);
             p1velocity = 0.0;
             p2velocity = 0.0;
             //expcount = 1;
@@ -829,11 +933,42 @@ public class Racer {
     private static BufferedImage nine;
     private static BufferedImage ten;
     private static BufferedImage slash;
-    private static BufferedImage check1;
     private static BufferedImage p1wins;
     private static BufferedImage p2wins;
     private static BufferedImage p1winText;
     private static BufferedImage p2winText;
+
+    private static BufferedImage rightWall;
+    private static ImageObject right;
+    private static double rX;
+    private static double rY;
+    private static double rwidth;
+    private static double rheight;
+    private static double rangle;
+
+    private static BufferedImage leftWall;
+    private static ImageObject left;
+    private static double lX;
+    private static double lY;
+    private static double lwidth;
+    private static double lheight;
+    private static double langle;
+
+    private static BufferedImage topWall;
+    private static ImageObject top;
+    private static double tX;
+    private static double tY;
+    private static double twidth;
+    private static double theight;
+    private static double tangle;
+
+    private static BufferedImage bottomWall;
+    private static ImageObject bottom;
+    private static double bX;
+    private static double bY;
+    private static double bwidth;
+    private static double bheight;
+    private static double bangle;
 
 
     private static Boolean upPressed;
@@ -853,6 +988,7 @@ public class Racer {
     private static double p1originalY;
     private static double p1velocity;
 
+    private static BufferedImage check1;
     private static ImageObject c1;
     private static double c1X;
     private static double c1Y;

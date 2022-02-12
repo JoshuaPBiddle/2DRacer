@@ -9,6 +9,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Vector;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -41,11 +42,26 @@ public class Racer {
         currentLapP1 = 0;
         currentLapP2 = 0;
 
+        grassX = 190;
+        grassY = 300;
+        grassWidth = 146;
+        grassHeight = 84;
+        grassAngle = 0.0;
+
         c1X = 397;
         c1Y = 403;
         c1width = 25;
         c1height = 49;
         c1angle = 0.0;
+
+        /*
+        timeX = 380;
+        timeY = 403;
+        timeWidth = 25;
+        timeHeight = 49;
+        timeAngle = 0.0;
+
+         */
 
         c2X = 486;
         c2Y = 83;
@@ -77,12 +93,29 @@ public class Racer {
         rheight = 500;
         rangle = 0.0;
 
+        fbX = 430;
+        fbY = 200;
+        fbWidth = 9;
+        fbHeight = 200;
+        fbAngle = 0.0;
+
+        sbX = 705;
+        sbY = 310;
+        sbWidth = 9;
+        sbHeight = 500;
+        sbAngle = 0.0;
+
         p1c1active = false;
         p2c1active = false;
         p1c2active = true;
         p2c2active = true;
 
+        //timeP1Active = true;
+        //timeP2Active = true;
+
         try {
+            firstBarrierImage = ImageIO.read(new File("firstBarrier.png"));
+            secondBarrierImage = ImageIO.read(new File("secondBarrier.png"));
             explosion = ImageIO.read(new File("explosion.png"));
             topWall = ImageIO.read(new File("topWall.png"));
             bottomWall = ImageIO.read(new File("bottomWall.png"));
@@ -113,6 +146,8 @@ public class Racer {
             ten = ImageIO.read(new File("number_10.png"));
             check1 = ImageIO.read(new File("check1.png"));
             check2 = ImageIO.read(new File("check2.png"));
+            //timeCheck = ImageIO.read(new File("timeCheck.png"));
+            grassImage = ImageIO.read(new File("grass.png"));
         } catch (IOException ioe) {
 
         }
@@ -128,6 +163,7 @@ public class Racer {
                 player2Draw();
                 currentLapsDrawP1();
                 currentLapsDrawP2();
+                //grassDraw();
 
                 try {
                     Thread.sleep(32);
@@ -225,15 +261,33 @@ public class Racer {
 
     private static class CollisionChecker implements Runnable {
         public void run() {
-
             while (!endgame) {
+                DecimalFormat df = new DecimalFormat("#.##");
+                startTimeP1 = System.nanoTime();
+                startTimeP2 = System.nanoTime();
+                System.out.println("P1 Speed: " + df.format(p1velocity));
+                System.out.println("\tP2 Speed: " + df.format(p2velocity));
+                //p1 grass slow
+                if (collisionOccurs(p1, grass)) {
+                    p1velocity = p1velocity * 0.9999;
+                }
+
+                //p2 grass slow
+                if (collisionOccurs(p2, grass)) {
+                    p2velocity = p2velocity * 0.9999;
+                }
 
                 //p1 lap count
                 if (collisionOccurs(p1, c1) && p1c1active) {
+                    endTimeP1 = System.nanoTime();
+                    double elapsedTime = startTimeP1 - endTimeP1;
+                    double seconds = elapsedTime;
+                    System.out.println("P1 Lap " + currentLapP1 + " Time: " + df.format(seconds));
                     currentLapP1 += 1;
                     System.out.println("p1 lap up: " + currentLapP1);
                     p1c1active = false;
                     p1c2active = true;
+
                 }
                 if (collisionOccurs(p1, c2) && p1c2active) {
                     System.out.println("p1 checkpoint");
@@ -241,8 +295,24 @@ public class Racer {
                     p1c1active = true;
                 }
 
+                /*
+                if (collisionOccurs(p1, time) && timeP1Active) {
+                    startTimeP1 = System.nanoTime();
+                }
+
+
+                if (collisionOccurs(p2, time) && timeP2Active) {
+                    startTimeP2 = System.nanoTime();
+                }
+
+                 */
+
                 //p2 lap count
                 if (collisionOccurs(p2, c1) && p2c1active) {
+                    endTimeP2 = System.nanoTime();
+                    double elapsedTime = startTimeP2 - endTimeP2;
+                    double seconds = elapsedTime / 1_000_000_000.0;
+                    System.out.println("P2 Lap " + currentLapP2 + " Time: " + df.format(seconds));
                     currentLapP2 += 1;
                     System.out.println("p2 lap up: " + currentLapP2);
                     p2c1active = false;
@@ -299,6 +369,30 @@ public class Racer {
 
                 //p2BottomWallCollision
                 if (collisionOccurs(p2, bottom)) {
+                    explosionDraw(p2);
+                    p2velocity = 0.0;
+                }
+
+                //first barrier collision
+                if (collisionOccurs(p1, firstBarrier)) {
+                    explosionDraw(p1);
+                    p1velocity = 0.0;
+                }
+
+                //first barrier collision
+                if (collisionOccurs(p2, firstBarrier)) {
+                    explosionDraw(p2);
+                    p2velocity = 0.0;
+                }
+
+                //second barrier collision
+                if (collisionOccurs(p1, secondBarrier)) {
+                    explosionDraw(p1);
+                    p1velocity = 0.0;
+                }
+
+                //second barrier collision
+                if (collisionOccurs(p2, secondBarrier)) {
                     explosionDraw(p2);
                     p2velocity = 0.0;
                 }
@@ -381,6 +475,7 @@ public class Racer {
         //g2D.drawImage(rotateImageObject(c2).filter(check1, null), (int) (c2.getX()), (int) (c2.getY()), null);
     }
 
+
     /*
     private static void wallsDraw() {
         Graphics g = appFrame.getGraphics();
@@ -390,9 +485,17 @@ public class Racer {
         g2D.drawImage(rotateImageObject(bottom).filter(bottomWall, null), (int) (bottom.getX()), (int) (bottom.getY()),null);
         g2D.drawImage(rotateImageObject(right).filter(rightWall, null), (int) (right.getX()), (int) (right.getY()), null);
         g2D.drawImage(rotateImageObject(left).filter(leftWall, null), (int) (left.getX()), (int) (left.getY()), null);
+        g2D.drawImage(rotateImageObject(firstBarrier).filter(firstBarrierImage, null), (int) (firstBarrier.getX()), (int) (firstBarrier.getY()), null);
+        g2D.drawImage(rotateImageObject(secondBarrier).filter(secondBarrierImage, null), (int) (secondBarrier.getX()), (int) (secondBarrier.getY()), null);
     }
 
      */
+
+    private static void grassDraw() {
+        Graphics g = appFrame.getGraphics();
+        Graphics2D g2D = (Graphics2D) g;
+        g2D.drawImage(rotateImageObject(grass).filter(grassImage, null), (int) (grass.getX()), (int) (grass.getY()), null);
+    }
 
     private static void backgroundDraw() {
         Graphics g = appFrame.getGraphics();
@@ -599,12 +702,16 @@ public class Racer {
             p2 = new ImageObject(p2originalX, p2originalY, p2width, p2height, -1.6);
             //c1 = new ImageObject(397, 403, 25, 49, 0.0);
             //c2 = new ImageObject(407, 403, 25, 49, 0.0);
+            grass = new ImageObject(grassX, grassY, grassWidth, grassHeight, grassAngle);
             c1 = new ImageObject(c1X, c1Y, c1width, c1height, c1angle);
             c2 = new ImageObject(c2X, c2Y, c2width, c2height, c2angle);
+            //time = new ImageObject(timeX, timeY, timeWidth, timeHeight, timeAngle);
             top = new ImageObject(tX, tY, twidth, theight, tangle);
             bottom = new ImageObject(bX, bY, bwidth, bheight, bangle);
             left = new ImageObject(lX, lY, lwidth, lheight, langle);
             right = new ImageObject(rX, rY, rwidth, rheight, rangle);
+            firstBarrier = new ImageObject(fbX, fbY, fbWidth, fbHeight, fbAngle);
+            secondBarrier = new ImageObject(sbX, sbY, sbWidth, sbHeight, sbAngle);
             p1velocity = 0.0;
             p2velocity = 0.0;
             //expcount = 1;
@@ -978,6 +1085,22 @@ public class Racer {
     private static double bheight;
     private static double bangle;
 
+    private static BufferedImage firstBarrierImage;
+    private static ImageObject firstBarrier;
+    private static double fbX;
+    private static double fbY;
+    private static double fbWidth;
+    private static double fbHeight;
+    private static double fbAngle;
+
+    private static BufferedImage secondBarrierImage;
+    private static ImageObject secondBarrier;
+    private static double sbX;
+    private static double sbY;
+    private static double sbWidth;
+    private static double sbHeight;
+    private static double sbAngle;
+
 
     private static Boolean upPressed;
     private static Boolean downPressed;
@@ -996,6 +1119,14 @@ public class Racer {
     private static double p1originalY;
     private static double p1velocity;
 
+    private static BufferedImage grassImage;
+    private static ImageObject grass;
+    private static double grassX;
+    private static double grassY;
+    private static double grassWidth;
+    private static double grassHeight;
+    private static double grassAngle;
+
     private static BufferedImage check1;
     private static ImageObject c1;
     private static double c1X;
@@ -1005,6 +1136,19 @@ public class Racer {
     private static double c1angle;
     private static boolean p1c1active;
     private static boolean p2c1active;
+
+    /*
+    private static BufferedImage timeCheck;
+    private static ImageObject time;
+    private static double timeX;
+    private static double timeY;
+    private static double timeWidth;
+    private static double timeHeight;
+    private static double timeAngle;
+    private static boolean timeP1Active;
+    private static boolean timeP2Active;
+
+     */
 
     private static BufferedImage check2;
     private static ImageObject c2;
@@ -1030,6 +1174,12 @@ public class Racer {
 
     private static boolean p1won;
     private static boolean p2won;
+
+    private static long startTimeP1;
+    private static long startTimeP2;
+
+    private static double endTimeP1;
+    private static double endTimeP2;
 
 
     private static int expcount;

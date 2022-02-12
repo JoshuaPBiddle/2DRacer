@@ -1,4 +1,5 @@
 import javax.imageio.ImageIO;
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -8,8 +9,6 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalTime;
-import java.util.Random;
 import java.util.Vector;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -17,11 +16,12 @@ import javax.swing.JPanel;
 
 
 public class Racer {
-    public Racer() {
+    public Racer() throws IOException, UnsupportedAudioFileException, LineUnavailableException {
         setup();
     }
 
-    public static void setup() {
+    public static void setup() throws UnsupportedAudioFileException, LineUnavailableException, IOException {
+        playAudio();
         appFrame = new JFrame("2DRacer");
         XOFFSET = 0;
         YOFFSET = 40;
@@ -61,12 +61,41 @@ public class Racer {
         g1width = 25;
         g1height = 25;
 
+        tX = 0;
+        tY = 0;
+        twidth = 801;
+        theight = 9;
+        tangle = 0.0;
+
+        bX = 50;
+        bY = 470;
+        bwidth = 801;
+        bheight = 9;
+        bangle = 0.0;
+
+        lX = 0;
+        lY = 0;
+        lwidth = 9;
+        lheight = 500;
+        langle = 0.0;
+
+        rX = 790;
+        rY = 0;
+        rwidth = 9;
+        rheight = 500;
+        rangle = 0.0;
+
         p1c1active = false;
         p2c1active = false;
         p1c2active = true;
         p2c2active = true;
 
         try {
+            explosion = ImageIO.read(new File("explosion.png"));
+            topWall = ImageIO.read(new File("topWall.png"));
+            bottomWall = ImageIO.read(new File("bottomWall.png"));
+            rightWall = ImageIO.read(new File("rightWall.png"));
+            leftWall = ImageIO.read(new File("leftWall.png"));
             background = ImageIO.read(new File("track1.png"));
             player1 = ImageIO.read(new File("Player1.png"));
             player2 = ImageIO.read(new File("Player2.png"));
@@ -99,6 +128,7 @@ public class Racer {
             while (!endgame) {
                 backgroundDraw();
                 checkpointsDraw();
+                //wallsDraw();
                 player1Draw();
                 player2Draw();
                 currentLapsDrawP1();
@@ -240,6 +270,55 @@ public class Racer {
                     p2c1active = true;
                 }
 
+                //p1TopWallCollision
+                if (collisionOccurs(p1, top)) {
+                    explosionDraw(p1);
+                    p1velocity = 0.0;
+                }
+
+                //p2TopWallCollision
+                if (collisionOccurs(p2, top)) {
+                    explosionDraw(p2);
+                    p2velocity = 0.0;
+                }
+
+                //p1RightWallCollision
+                if (collisionOccurs(p1, right)) {
+                    explosionDraw(p1);
+                    p1velocity = 0.0;
+                }
+
+                //p2RightWallCollision
+                if (collisionOccurs(p2, right)) {
+                    explosionDraw(p2);
+                    p2velocity = 0.0;
+                }
+
+                //p1LeftWallCollision
+                if (collisionOccurs(p1, left)) {
+                    explosionDraw(p1);
+                    p1velocity = 0.0;
+                }
+
+                //p2LeftWallCollision
+                if (collisionOccurs(p2, left)) {
+                    explosionDraw(p2);
+                    p2velocity = 0.0;
+                }
+
+                //p1BottomWallCollision
+                if (collisionOccurs(p1, bottom)) {
+                    explosionDraw(p1);
+                    p1velocity = 0.0;
+                }
+
+                //p2BottomWallCollision
+                if (collisionOccurs(p2, bottom)) {
+                    explosionDraw(p2);
+                    p2velocity = 0.0;
+                }
+
+
                 lapCount = Math.max(currentLapP1, currentLapP2);
             }
         }
@@ -249,16 +328,32 @@ public class Racer {
 
     private static class WinChecker implements Runnable {
         public void run() {
-            while (endgame = false) {
-                if (lapCount >= maxLapNum) {    // FIXME does not end at three laps
-                    endgame = true;
-                    System.out.println("Game Over. You Win!");
+            while (!endgame) {
+                Graphics g = appFrame.getGraphics();
+                Graphics2D g2D = (Graphics2D) g;
+                //System.out.println("lapCount" + lapCount);
+                //System.out.println("maxLap" + maxLapNum);
+                if (maxLapNum == 0) {
+                    maxLapNum = 3;
+                }
+                if (lapCount >= maxLapNum && lapCount != 0) {
+                    if (p1won) {
+                        g2D.drawImage(p1wins, XOFFSET, YOFFSET, null);
+                        g2D.drawImage(p1winText, XOFFSET + 220, YOFFSET + 50, null);
+                        endgame = true;
+                        System.out.println("P1 Wins!");
+                    }if (p2won) {
+                        g2D.drawImage(p2wins, XOFFSET, YOFFSET, null);
+                        g2D.drawImage(p2winText, XOFFSET + 220, YOFFSET + 50, null);
+                        endgame = true;
+                        System.out.println("P2 Wins!");
+                    }
                 }
             }
         }
     }
 
-    /*
+
     private static void lockrotateObjAroundObjbottom(ImageObject objOuter, ImageObject objInner, double dist) {
         objOuter.moveto(objInner.getX() + (dist + objInner.getWidth() / 2.0) * Math.cos(-objInner.getAngle() + pi / 2.0) + objOuter.getWidth() / 2.0,
                 objInner.getY() + (dist + objInner.getHeight() / 2.0) * Math.sin(-objInner.getAngle() + pi / 2.0)
@@ -273,7 +368,7 @@ public class Racer {
 
         objOuter.setAngle(objInner.getAngle());
     }
-    */
+
 
     private static AffineTransformOp rotateImageObject(ImageObject obj) {
         AffineTransform at = AffineTransform.getRotateInstance(-obj.getAngle(), obj.getHeight() / 2.0,
@@ -293,11 +388,20 @@ public class Racer {
         Graphics g = appFrame.getGraphics();
         Graphics2D g2D = (Graphics2D) g;
         //g2D.drawImage(rotateImageObject(c1).filter(check1, null), (int)(c1.getX()), (int)(c1.getY()), null);
-
-        // FIXME null image error
         //g2D.drawImage(rotateImageObject(c2).filter(check2, null), (int)(c2.getX()), (int)(c2.getY()), null);
         //g2D.drawImage(rotateImageObject(g1).filter(grass1, null), (int)(g1.getX()), (int)(g1.getY()), null);
     }
+
+    /*
+    private static void wallsDraw() {
+        Graphics g = appFrame.getGraphics();
+        Graphics2D g2D = (Graphics2D) g;
+        g2D.drawImage(rotateImageObject(top).filter(topWall, null), (int) (top.getX()), (int) (top.getY()), null);
+        g2D.drawImage(rotateImageObject(bottom).filter(bottomWall, null), (int) (bottom.getX()), (int) (bottom.getY()),null);
+        g2D.drawImage(rotateImageObject(right).filter(rightWall, null), (int) (right.getX()), (int) (right.getY()), null);
+        g2D.drawImage(rotateImageObject(left).filter(leftWall, null), (int) (left.getX()), (int) (left.getY()), null);
+    }
+     */
 
     private static void backgroundDraw() {
         Graphics g = appFrame.getGraphics();
@@ -306,6 +410,12 @@ public class Racer {
         g2D.drawImage(carBG, XOFFSET, YOFFSET + 430, null);
         g2D.drawImage(orangeCar, XOFFSET, YOFFSET + 430, null);
         g2D.drawImage(blueCar, XOFFSET + 560, YOFFSET + 422, null);
+    }
+
+    private static void explosionDraw(ImageObject player) {
+        Graphics g = appFrame.getGraphics();
+        Graphics2D g2D = (Graphics2D) g;
+        g2D.drawImage(explosion, (int) (player.getX()), (int) (player.getY() + 11), null);
     }
 
     //blue car
@@ -495,12 +605,16 @@ public class Racer {
             c1 = new ImageObject(c1X, c1Y, c1width, c1height, c1angle);
             c2 = new ImageObject(c2X, c2Y, c2width, c2height, c2angle);
             g1 = new ImageObject(g1X, g1Y, g1width, g1height, g1angle);
+            top = new ImageObject(tX, tY, twidth, theight, tangle);
+            bottom = new ImageObject(bX, bY, bwidth, bheight, bangle);
+            left = new ImageObject(lX, lY, lwidth, lheight, langle);
+            right = new ImageObject(rX, rY, rwidth, rheight, rangle);
             p1velocity = 0.0;
             p2velocity = 0.0;
             try {
                 Thread.sleep(50);
             } catch (InterruptedException ie) {
-
+                System.out.println("Error: " + ie);
             }
             endgame = false;
 
@@ -537,6 +651,7 @@ public class Racer {
             JComboBox cb = (JComboBox) e.getSource();
             String textLevel = (String) cb.getSelectedItem();
             maxLapNum = decodeLevel(textLevel);
+            System.out.println("MaxLap: " + maxLapNum);
         }
     }
 
@@ -753,8 +868,18 @@ public class Racer {
         myPanel.getActionMap().put(input + " released", new KeyReleased(input));
     }
 
+    private static void playAudio() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+        File audioFile = new File("videoplayback.wav");
+        audioStream = AudioSystem.getAudioInputStream(audioFile);
+        AudioFormat format = audioStream.getFormat();
+        DataLine.Info info = new DataLine.Info(Clip.class, format);
+        audioClip = (Clip) AudioSystem.getLine(info);
+        audioClip.open(audioStream);
+        audioClip.start();
+    }
 
-    public static void main(String[] args) throws IOException {
+
+    public static void main(String[] args) throws IOException, UnsupportedAudioFileException, LineUnavailableException {
         setup();
 
         appFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -823,6 +948,43 @@ public class Racer {
     private static BufferedImage nine;
     private static BufferedImage ten;
     private static BufferedImage slash;
+    private static BufferedImage p1wins;
+    private static BufferedImage p2wins;
+    private static BufferedImage p1winText;
+    private static BufferedImage p2winText;
+    private static BufferedImage explosion;
+
+    private static BufferedImage rightWall;
+    private static ImageObject right;
+    private static double rX;
+    private static double rY;
+    private static double rwidth;
+    private static double rheight;
+    private static double rangle;
+
+    private static BufferedImage leftWall;
+    private static ImageObject left;
+    private static double lX;
+    private static double lY;
+    private static double lwidth;
+    private static double lheight;
+    private static double langle;
+
+    private static BufferedImage topWall;
+    private static ImageObject top;
+    private static double tX;
+    private static double tY;
+    private static double twidth;
+    private static double theight;
+    private static double tangle;
+
+    private static BufferedImage bottomWall;
+    private static ImageObject bottom;
+    private static double bX;
+    private static double bY;
+    private static double bwidth;
+    private static double bheight;
+    private static double bangle;
 
     private static Boolean upPressed;
     private static Boolean downPressed;
@@ -883,6 +1045,10 @@ public class Racer {
     private static int currentLapP2;
     private static int lapCount;
 
+    private static boolean p1won;
+    private static boolean p2won;
+
+    private static int expcount;
     private static int XOFFSET;
     private static int YOFFSET;
     private static int WINWIDTH;
@@ -892,6 +1058,9 @@ public class Racer {
     private static double twoPi;
 
     private static JFrame appFrame;
+
+    private static Clip audioClip;
+    private static AudioInputStream audioStream;
 
     private static final int IFW = JComponent.WHEN_IN_FOCUSED_WINDOW;
 }

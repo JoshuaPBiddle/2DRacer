@@ -83,6 +83,7 @@ public class Racer {
         p2c2active = true;
 
         try {
+            explosion = ImageIO.read(new File("explosion.png"));
             topWall = ImageIO.read(new File("topWall.png"));
             bottomWall = ImageIO.read(new File("bottomWall.png"));
             rightWall = ImageIO.read(new File("rightWall.png"));
@@ -256,49 +257,49 @@ public class Racer {
 
                 //p1TopWallCollision
                 if (collisionOccurs(p1, top)) {
-                    System.out.println("p1 hit top");
+                    explosionDraw(p1);
                     p1velocity = 0.0;
                 }
 
                 //p2TopWallCollision
                 if (collisionOccurs(p2, top)) {
-                    System.out.println("p2 hit top");
+                    explosionDraw(p2);
                     p2velocity = 0.0;
                 }
 
                 //p1RightWallCollision
                 if (collisionOccurs(p1, right)) {
-                    System.out.println("p1 hit right");
+                    explosionDraw(p1);
                     p1velocity = 0.0;
                 }
 
                 //p2RightWallCollision
                 if (collisionOccurs(p2, right)) {
-                    System.out.println("p2 hit right");
+                    explosionDraw(p2);
                     p2velocity = 0.0;
                 }
 
                 //p1LeftWallCollision
                 if (collisionOccurs(p1, left)) {
-                    System.out.println("p1 hit left");
+                    explosionDraw(p1);
                     p1velocity = 0.0;
                 }
 
                 //p2LeftWallCollision
                 if (collisionOccurs(p2, left)) {
-                    System.out.println("p2 hit left");
+                    explosionDraw(p2);
                     p2velocity = 0.0;
                 }
 
                 //p1BottomWallCollision
                 if (collisionOccurs(p1, bottom)) {
-                    System.out.println("p1 hit bottom");
+                    explosionDraw(p1);
                     p1velocity = 0.0;
                 }
 
                 //p2BottomWallCollision
                 if (collisionOccurs(p2, bottom)) {
-                    System.out.println("p2 hit bottom");
+                    explosionDraw(p2);
                     p2velocity = 0.0;
                 }
 
@@ -400,6 +401,12 @@ public class Racer {
         g2D.drawImage(carBG, XOFFSET, YOFFSET + 430, null);
         g2D.drawImage(orangeCar, XOFFSET, YOFFSET + 430, null);
         g2D.drawImage(blueCar, XOFFSET + 560, YOFFSET + 422, null);
+    }
+
+    private static void explosionDraw(ImageObject player) {
+        Graphics g = appFrame.getGraphics();
+        Graphics2D g2D = (Graphics2D) g;
+        g2D.drawImage(explosion, (int) (player.getX()), (int) (player.getY() + 11), null);
     }
 
     //orange car
@@ -937,6 +944,7 @@ public class Racer {
     private static BufferedImage p2wins;
     private static BufferedImage p1winText;
     private static BufferedImage p2winText;
+    private static BufferedImage explosion;
 
     private static BufferedImage rightWall;
     private static ImageObject right;
